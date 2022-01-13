@@ -1,40 +1,35 @@
-function onError(error) {
-    console.log(`${error}`);
+function ff2mpv(url, tabId) {
+  chrome.scripting.executeScript({
+    target: { tabId: tabId, allFrames: true },
+    func: () => {
+      document.querySelectorAll("video").forEach((video) => video.pause());
+    },
+  });
+  chrome.runtime
+    .sendNativeMessage("ff2mpv", { url: url })
+    .catch((error) => console.log(`${error}`));
 }
 
-function ff2mpv(url) {
-    browser.tabs.executeScript({
-        code: "video = document.getElementsByTagName('video');video[0].pause();"
-    });
-    browser.runtime.sendNativeMessage("ff2mpv", { url: url }).catch(onError);
-}
-
-async function getOS() {
-  return browser.runtime.getPlatformInfo().then((i) => i.os);
-}
-
-getOS().then((os) => {
-  var title = os == "win" ? "Play in MP&V" : "Play in MPV (&W)";
-
-  browser.contextMenus.create({
-      id: "ff2mpv",
-      title: title,
-      contexts: ["link", "image", "video", "audio", "selection", "frame"]
+chrome.runtime.onInstalled.addListener((_) => {
+  chrome.contextMenus.create({
+    id: "ff2mpv",
+    title: "Play in MPV",
+    contexts: ["link", "image", "video", "audio", "selection", "frame"],
   });
+});
 
-  browser.contextMenus.onClicked.addListener((info, tab) => {
-      switch (info.menuItemId) {
-          case "ff2mpv":
-              /* These should be mutually exclusive, but,
-                 if they aren't, this is a reasonable priority.
-              */
-              url = info.linkUrl || info.srcUrl || info.selectionText || info.frameUrl;
-              if (url) ff2mpv(url);
-              break;
-      }
-  });
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  switch (info.menuItemId) {
+    case "ff2mpv":
+      /* These should be mutually exclusive, but,
+       * if they aren't, this is a reasonable priority. */
+      const url =
+        info.linkUrl || info.srcUrl || info.selectionText || info.frameUrl;
+      if (url) ff2mpv(url, tab.id);
+      break;
+  }
+});
 
-  browser.browserAction.onClicked.addListener((tab) => {
-      ff2mpv(tab.url);
-  });
+chrome.action.onClicked.addListener((tab) => {
+  ff2mpv(tab.url, tab.id);
 });
