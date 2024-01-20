@@ -32,10 +32,15 @@
         "persistent": false,
         "service_worker": "ff2mpv.js"
     },
+    "options_ui": {
+        "page": "options/options.html",
+        "open_in_tab": false
+    },
     "permissions": [
         "nativeMessaging",
         "contextMenus",
         "activeTab",
+        "storage",
         "scripting"
     ]
 }
