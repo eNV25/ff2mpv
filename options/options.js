@@ -92,7 +92,7 @@
     profilesWrapper.removeChild(targetProfile);
 
     if (id) {
-      sendMessage({ type: UPDATE_PROFILE, profile: { id } });
+      sendMessage({ type: DELETE_PROFILE, profile: { id } });
 
       return deleteProfile(id);
     }
