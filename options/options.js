@@ -16,7 +16,12 @@
   };
 
   const getProfiles = async () => {
-    return (await chrome.storage.sync.get(PROFILES))[PROFILES] || [];
+    try {
+      return (await chrome.storage.sync.get(PROFILES))[PROFILES] || [];
+    } catch (error) {
+      console.debug('Unable to get profiles:', error);
+      return [];
+    }
   };
 
   const saveProfile = async (profile) => {

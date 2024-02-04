@@ -25,17 +25,27 @@ function ff2mpv(url, tabId, options = []) {
 }
 
 async function getProfiles() {
-  return (await chrome.storage.sync.get(PROFILES))[PROFILES] || [];
+  try {
+    return (await chrome.storage.sync.get(PROFILES))[PROFILES] || [];
+  } catch (error) {
+    console.debug('Unable to get profiles:', error);
+    return [];
+  }
 };
 
 async function getOptions(id) {
-  const profiles = await getProfiles();
-  const profile = profiles.find(pf => pf.id === id);
+  try {
+    const profiles = await getProfiles();
+    const profile = profiles.find(pf => pf.id === id);
 
-  // If profile, remove empty lines
-  return profile
-    ? profile.content.filter(line => !!line)
-    : [];
+    // If profile, remove empty lines
+    return profile
+      ? profile.content.filter(line => !!line)
+      : [];
+  } catch (error) {
+    console.debug('Unable to get options for profile:', id, error);
+    return [];
+  }
 }
 
 async function submenuClicked(info, tab) {
@@ -54,7 +64,9 @@ async function submenuClicked(info, tab) {
 
 function changeToMultiEntries() {
   // Remove single entry
-  chrome.contextMenus.remove('ff2mpv');
+  try {
+    chrome.contextMenus.remove('ff2mpv');
+  } catch (error) {}
 
   // Add sub context menu
   chrome.contextMenus.create({
@@ -74,7 +86,9 @@ function changeToMultiEntries() {
 
 function changeToSingleEntry() {
   // Remove sub context menu
-  chrome.contextMenus.remove('ff2mpv');
+  try {
+    chrome.contextMenus.remove('ff2mpv');
+  } catch (error) {}
 
   chrome.contextMenus.create({
     id: 'ff2mpv',
