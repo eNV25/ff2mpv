@@ -11,8 +11,9 @@ import subprocess
 def main():
     message = get_message()
     url = message.get("url")
+    options = message.get("options") or []
 
-    args = ["mpv", "--no-terminal", "--", url]
+    args = ["mpv", "--no-terminal", *options, "--", url]
 
     kwargs = {}
     # https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_messaging#Closing_the_native_app
@@ -28,7 +29,7 @@ def main():
     # Hence this nasty hack.
     if platform.system() == "Darwin":
         path = os.environ.get("PATH")
-        os.environ["PATH"] = f"/usr/local/bin:{path}"
+        os.environ["PATH"] = f"/usr/local/bin:/opt/homebrew/bin:{path}"
 
     subprocess.Popen(args, **kwargs)
 
