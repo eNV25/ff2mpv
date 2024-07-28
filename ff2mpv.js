@@ -60,10 +60,10 @@ async function submenuClicked(info, tab) {
   }
 }
 
-function changeToMultiEntries() {
+async function changeToMultiEntries() {
   // Remove single entry
   try {
-    chrome.contextMenus.remove("ff2mpv");
+    await chrome.contextMenus.removeAll();
   } catch (error) {}
 
   // Add sub context menu
@@ -81,10 +81,10 @@ function changeToMultiEntries() {
   });
 }
 
-function changeToSingleEntry() {
+async function changeToSingleEntry() {
   // Remove sub context menu
   try {
-    chrome.contextMenus.remove("ff2mpv");
+    await chrome.contextMenus.removeAll();
   } catch (error) {}
 
   chrome.contextMenus.create({
@@ -98,7 +98,7 @@ async function createProfile(profile) {
   const profiles = await getProfiles();
 
   if (profiles.length === 0) {
-    changeToMultiEntries();
+    await changeToMultiEntries();
   }
 
   chrome.contextMenus.create({
@@ -115,7 +115,7 @@ async function deleteProfile(menuItemId) {
   const profiles = (await getProfiles()).filter((pf) => pf.id !== menuItemId);
 
   if (profiles.length === 0) {
-    changeToSingleEntry();
+    await changeToSingleEntry();
   }
 }
 
@@ -154,9 +154,9 @@ chrome.runtime.onInstalled.addListener(async (_) => {
   const profiles = await getProfiles();
 
   if (profiles.length === 0) {
-    changeToSingleEntry();
+    await changeToSingleEntry();
   } else {
-    changeToMultiEntries();
+    await changeToMultiEntries();
 
     profiles.forEach((profile) => {
       chrome.contextMenus.create({
@@ -191,6 +191,9 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       break;
     default:
       console.warn("No handler for type:", type);
+      sendResponse("failure");
       return;
   }
+
+  sendResponse("ok");
 });
